@@ -9,3 +9,8 @@ ExecStart=/usr/bin/loki -config.file=/etc/loki/loki.yaml
 WorkingDirectory=/var/lib/loki
 StateDirectory=loki
 StateDirectoryMode=0750
+ProtectSystem=strict
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6

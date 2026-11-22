@@ -92,6 +92,11 @@ unchanged run leaves a running instance in place and starts a stopped service.
 
 ## Security Notes
 
+- The systemd service has a read-only system filesystem. Keep custom paths for
+  persistent writes, including the WAL, index and compactor working directory,
+  under `/var/lib/loki`.
+- Loki has private temporary directories and a private device tree. It cannot
+  gain new privileges and can open only Unix, IPv4 and IPv6 sockets.
 - HTTP and gRPC listen on loopback by default. Place an authenticating reverse
   proxy in front of a remotely accessible endpoint.
 - Loki's auth_enabled setting enforces tenant headers. The proxy must

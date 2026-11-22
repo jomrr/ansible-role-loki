@@ -54,28 +54,40 @@ platforms:
     pre_build_image: true
     override_command: false
     systemd: "true"
+    capabilities:
+      - "SYS_ADMIN"
   - name: "debian-latest-loki"
     image: "docker.io/jomrr/molecule-debian:latest"
     pre_build_image: true
     override_command: false
     systemd: "true"
+    capabilities:
+      - "SYS_ADMIN"
   - name: "fedora-latest-loki"
     image: "docker.io/jomrr/molecule-fedora:latest"
     pre_build_image: true
     override_command: false
     systemd: "true"
+    capabilities:
+      - "SYS_ADMIN"
   - name: "opensuse-leap-latest-loki"
     image: "docker.io/jomrr/molecule-opensuse-leap:latest"
     pre_build_image: true
     override_command: false
     systemd: "true"
+    capabilities:
+      - "SYS_ADMIN"
   - name: "opensuse-tumbleweed-latest-loki"
     image: "docker.io/jomrr/molecule-opensuse-tumbleweed:latest"
     pre_build_image: true
     override_command: false
     systemd: "true"
+    capabilities:
+      - "SYS_ADMIN"
   - name: "ubuntu-latest-loki"
     image: "docker.io/jomrr/molecule-ubuntu:latest"
     pre_build_image: true
     override_command: false
     systemd: "true"
+    capabilities:
+      - "SYS_ADMIN"

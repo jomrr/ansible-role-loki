@@ -9,6 +9,25 @@
     __loki_url: http://127.0.0.1:3100
     __loki_timestamp: "{{ ansible_facts.date_time.epoch }}000000000"
   tasks:
+    - name: LOKI | Read the service state and effective sandbox settings
+      ansible.builtin.systemd_service:
+        name: loki.service
+        state: started
+      check_mode: true
+      register: __loki_unit
+
+    - name: LOKI | Verify the running service sandbox
+      ansible.builtin.assert:
+        that:
+          - __loki_unit.status.ActiveState == 'active'
+          - __loki_unit.status.ProtectSystem == 'strict'
+          - __loki_unit.status.StateDirectory == 'loki'
+          - __loki_unit.status.NoNewPrivileges | bool
+          - __loki_unit.status.PrivateTmp | bool
+          - __loki_unit.status.PrivateDevices | bool
+          - __loki_unit.status.RestrictAddressFamilies.split() | sort == ['AF_INET', 'AF_INET6', 'AF_UNIX']
+        quiet: true
+
     - name: LOKI | Wait for the instance to accept requests
       ansible.builtin.uri:
         url: "{{ __loki_url }}/ready"
