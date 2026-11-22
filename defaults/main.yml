@@ -1,0 +1,13 @@
+---
+# role: loki
+# file: defaults/main.yml
+
+# Native Loki YAML settings for the service.
+loki_config: {}
+# loki_config:
+#   server:
+#     http_listen_port: 3101
+
+# How the native settings are applied to the standalone configuration.
+# Choices: merge, replace
+loki_config_mode: merge

@@ -1,0 +1,17 @@
+---
+# role: loki
+# file: meta/main.yml
+
+galaxy_info:
+  author: Jonas Mauer
+  description: Install Grafana Loki from Grafana's package repositories and configure its systemd service.
+  galaxy_tags:
+    - loki
+    - grafana
+    - logging
+    - observability
+  issue_tracker_url: https://github.com/jomrr/ansible-role-loki/issues
+  license: MIT
+  min_ansible_version: "2.22"
+  namespace: jomrr
+  role_name: loki

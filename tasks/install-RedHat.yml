@@ -1,0 +1,25 @@
+---
+# role: loki
+# file: tasks/install-RedHat.yml
+
+- name: LOKI | Configure the signed Grafana DNF repository
+  become: true
+  become_user: root
+  ansible.builtin.yum_repository:
+    name: grafana
+    description: Grafana Labs
+    baseurl: https://rpm.grafana.com
+    gpgkey: https://rpm.grafana.com/gpg.key
+    gpgcheck: true
+    repo_gpgcheck: true
+    enabled: true
+    mode: '0644'
+
+- name: LOKI | Install Loki from the Grafana DNF repository
+  become: true
+  become_user: root
+  ansible.builtin.dnf:
+    name: loki
+    state: present
+    disablerepo: '*'
+    enablerepo: grafana

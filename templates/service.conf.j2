@@ -1,0 +1,11 @@
+# Managed by ansible.
+# file: {{ template_destpath }}
+[Unit]
+ConditionPathExists=/etc/loki/loki.yaml
+
+[Service]
+ExecStart=
+ExecStart=/usr/bin/loki -config.file=/etc/loki/loki.yaml
+WorkingDirectory=/var/lib/loki
+StateDirectory=loki
+StateDirectoryMode=0750

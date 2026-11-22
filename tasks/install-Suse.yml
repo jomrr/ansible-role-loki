@@ -1,0 +1,20 @@
+---
+# role: loki
+# file: tasks/install-Suse.yml
+
+- name: LOKI | Configure the signed Grafana Zypper repository
+  become: true
+  become_user: root
+  community.general.zypper_repository:
+    name: grafana
+    repo: https://rpm.grafana.com
+    autorefresh: true
+    disable_gpg_check: false
+
+- name: LOKI | Install Loki from the Grafana Zypper repository
+  become: true
+  become_user: root
+  community.general.zypper:
+    name: loki
+    state: present
+    extra_args: --repo grafana

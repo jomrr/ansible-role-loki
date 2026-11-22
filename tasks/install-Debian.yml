@@ -1,0 +1,33 @@
+---
+# role: loki
+# file: tasks/install-Debian.yml
+
+- name: LOKI | Configure the signed Grafana APT repository
+  become: true
+  become_user: root
+  ansible.builtin.deb822_repository:
+    name: grafana
+    uris: https://apt.grafana.com
+    suites: stable
+    components: main
+    signed_by: https://apt.grafana.com/gpg.key
+    install_python_debian: true
+  register: __loki_apt_repository
+
+- name: LOKI | Prefer the Grafana build of the Loki package
+  become: true
+  become_user: root
+  ansible.builtin.template:
+    src: apt-preferences.j2
+    dest: /etc/apt/preferences.d/grafana-loki
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: LOKI | Install Loki from APT
+  become: true
+  become_user: root
+  ansible.builtin.apt:
+    name: loki
+    state: present
+    update_cache: "{{ __loki_apt_repository.changed }}"

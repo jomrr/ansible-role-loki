@@ -1,0 +1,42 @@
+---
+# role: loki
+# file: molecule/resources/playbooks/verify.yml
+
+- name: LOKI | Verify log ingestion and retrieval
+  hosts: all
+  gather_facts: true
+  vars:
+    __loki_url: http://127.0.0.1:3100
+    __loki_timestamp: "{{ ansible_facts.date_time.epoch }}000000000"
+  tasks:
+    - name: LOKI | Wait for the instance to accept requests
+      ansible.builtin.uri:
+        url: "{{ __loki_url }}/ready"
+      register: __loki_ready
+      until: __loki_ready.status == 200
+      retries: 60
+      delay: 2
+
+    - name: LOKI | Send a log entry
+      ansible.builtin.uri:
+        url: "{{ __loki_url }}/loki/api/v1/push"
+        method: POST
+        body_format: json
+        body:
+          streams:
+            - stream:
+                job: molecule
+              values:
+                - ["{{ __loki_timestamp | string }}", "entry-{{ __loki_timestamp }}"]
+        status_code: 204
+
+    - name: LOKI | Query the submitted entry with LogQL
+      ansible.builtin.uri:
+        url: "{{ __loki_url }}/loki/api/v1/query_range?query=%7Bjob%3D%22molecule%22%7D"
+      register: __loki_query
+      until: >-
+        __loki_query.status == 200 and
+        [__loki_timestamp | string, 'entry-' ~ __loki_timestamp] in
+        (__loki_query.json.data.result | map(attribute='values') | flatten(levels=1))
+      retries: 15
+      delay: 2

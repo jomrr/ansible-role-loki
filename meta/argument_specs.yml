@@ -1,0 +1,23 @@
+---
+# role: loki
+# file: meta/argument_specs.yml
+
+argument_specs:
+  main:
+    short_description: Run Grafana Loki with a persistent local store or a custom native
+      configuration.
+    options:
+      loki_config:
+        type: dict
+        default: {}
+        no_log: true
+        description: Native Loki YAML settings, including listeners, limits, schema periods,
+          storage, ring and ruler.
+      loki_config_mode:
+        type: str
+        default: merge
+        choices:
+          - merge
+          - replace
+        description: Recursively merge settings into the standalone defaults or replace
+          the entire configuration. Lists are replaced.

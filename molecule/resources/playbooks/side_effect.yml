@@ -1,0 +1,31 @@
+---
+# role: loki
+# file: molecule/resources/playbooks/side_effect.yml
+
+- name: LOKI | Move the HTTP listener and query earlier data
+  hosts: all
+  gather_facts: true
+  tasks:
+    - name: LOKI | Apply a native server override
+      ansible.builtin.include_role:
+        name: "{{ lookup('ansible.builtin.env', 'MOLECULE_PROJECT_DIRECTORY') }}"
+      vars:
+        loki_config:
+          server:
+            http_listen_port: 3101
+
+    - name: LOKI | Wait for the new listener
+      ansible.builtin.uri:
+        url: http://127.0.0.1:3101/ready
+      register: __loki_ready
+      until: __loki_ready.status == 200
+      retries: 60
+      delay: 2
+
+    - name: LOKI | Retrieve a previously ingested entry after the restart
+      ansible.builtin.uri:
+        url: http://127.0.0.1:3101/loki/api/v1/query_range?query=%7Bjob%3D%22molecule%22%7D
+      register: __loki_query
+      until: __loki_query.status == 200 and __loki_query.json.data.result | length > 0
+      retries: 15
+      delay: 2
