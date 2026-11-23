@@ -81,8 +81,9 @@ loki_config_mode: merge
 
 ## Check Mode
 
-Run check mode on a provisioned host. A first installation needs a normal run to
-install the validator and service unit.
+The install entry point supports check mode on fresh and provisioned hosts. A
+dry run reports pending repository setup and defers package resolution until the
+repository is available. Use check mode for the full role after provisioning.
 
 ## Service Behavior
 
@@ -126,6 +127,22 @@ unchanged run leaves a running instance in place and starts a stopped service.
 | Debian | Ubuntu | latest | [jomrr/molecule-ubuntu:latest](https://hub.docker.com/r/jomrr/molecule-ubuntu) |
 
 ## Example Playbook
+
+### Install Loki for a separately managed service
+
+Install the official package, its vendor files and the Loki service account.
+The caller manages Loki configuration, service startup and boot enablement.
+
+```yaml
+- name: Install Grafana Loki
+  hosts: log_servers
+  gather_facts: true
+  tasks:
+    - name: Install Loki
+      ansible.builtin.import_role:
+        name: jomrr.loki
+        tasks_from: install
+```
 
 ### Start a local Loki instance
 

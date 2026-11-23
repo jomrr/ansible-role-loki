@@ -15,6 +15,11 @@
     enabled: true
     mode: '0644'
 
+- name: LOKI | Check whether DNF can read the configured repository
+  ansible.builtin.stat:
+    path: /etc/yum.repos.d/grafana.repo
+  register: __loki_dnf_source
+
 - name: LOKI | Install Loki from the Grafana DNF repository
   become: true
   become_user: root
@@ -23,3 +28,5 @@
     state: present
     disablerepo: '*'
     enablerepo: grafana
+  environment: "{{ __loki_package_environment }}"
+  when: __loki_dnf_source.stat.exists

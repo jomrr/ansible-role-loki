@@ -2,23 +2,8 @@
 # role: loki
 # file: tasks/main.yml
 
-- name: LOKI | Create the service group
-  become: true
-  become_user: root
-  ansible.builtin.group:
-    name: loki
-    system: true
-
-- name: LOKI | Create the service account
-  become: true
-  become_user: root
-  ansible.builtin.user:
-    name: loki
-    group: loki
-    system: true
-    home: /var/lib/loki
-    create_home: false
-    shell: /bin/false
+- name: LOKI | Install Grafana Loki
+  ansible.builtin.import_tasks: install.yml
 
 - name: LOKI | Create the systemd drop-in directory
   become: true
@@ -30,7 +15,7 @@
     group: root
     mode: '0755'
 
-- name: LOKI | Select the managed configuration before the package starts the service
+- name: LOKI | Install the systemd sandbox and select the managed configuration
   become: true
   become_user: root
   ansible.builtin.template:
@@ -40,18 +25,6 @@
     group: root
     mode: '0644'
   notify: LOKI | Restart Loki
-
-- name: LOKI | Trust the Grafana RPM signing key
-  become: true
-  become_user: root
-  ansible.builtin.rpm_key:
-    key: https://rpm.grafana.com/gpg.key
-    fingerprint: B53AE77BADB630A683046005963FA27710458545
-    state: present
-  when: ansible_facts.os_family in ['RedHat', 'Suse']
-
-- name: LOKI | Install the official Grafana package for this platform
-  ansible.builtin.include_tasks: "install-{{ ansible_facts.os_family }}.yml"
 
 - name: LOKI | Validate and install the configuration
   become: true

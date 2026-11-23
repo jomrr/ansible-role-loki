@@ -1,0 +1,65 @@
+---
+# role: loki
+# file: molecule/resources/playbooks/prepare_install.yml
+
+- name: LOKI | Prepare platform package metadata
+  ansible.builtin.import_playbook: prepare.yml
+
+- name: LOKI | Exercise standalone installation on fresh hosts
+  hosts: all
+  gather_facts: true
+  tasks:
+    - name: LOKI | Preview standalone installation
+      ansible.builtin.include_role:
+        name: "{{ lookup('ansible.builtin.env', 'MOLECULE_PROJECT_DIRECTORY') }}"
+        tasks_from: install
+        apply:
+          check_mode: true
+
+    - name: LOKI | Look for the binary after the preview
+      ansible.builtin.stat:
+        path: /usr/bin/loki
+      register: __loki_preview_binary
+
+    - name: LOKI | Verify the preview left Loki uninstalled
+      ansible.builtin.assert:
+        that: not __loki_preview_binary.stat.exists
+        quiet: true
+
+    - name: LOKI | Install the package and account
+      ansible.builtin.include_role:
+        name: "{{ lookup('ansible.builtin.env', 'MOLECULE_PROJECT_DIRECTORY') }}"
+        tasks_from: install
+
+    - name: LOKI | Run the installed binary
+      ansible.builtin.command: /usr/bin/loki -version
+      changed_when: false
+
+    - name: LOKI | Look up the service account
+      ansible.builtin.getent:
+        database: passwd
+        key: loki
+
+    - name: LOKI | Inspect the packaged service
+      ansible.builtin.systemd_service:
+        name: loki.service
+        state: started
+      check_mode: true
+      register: __loki_installed_unit
+
+    - name: LOKI | Look for the managed configuration
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      loop:
+        - /etc/loki/loki.yaml
+        - /etc/systemd/system/loki.service.d/10-ansible.conf
+      register: __loki_managed_files
+
+    - name: LOKI | Verify installation left configuration and activation to the caller
+      ansible.builtin.assert:
+        that:
+          - __loki_managed_files.results | selectattr('stat.exists') | length == 0
+          - __loki_installed_unit.status.ActiveState == 'inactive'
+          - __loki_installed_unit.status.UnitFileState == 'disabled'
+          - __loki_installed_unit.status.ExecMainStartTimestampMonotonic == '0'
+        quiet: true

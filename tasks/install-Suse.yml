@@ -5,11 +5,17 @@
 - name: LOKI | Configure the signed Grafana Zypper repository
   become: true
   become_user: root
-  community.general.zypper_repository:
-    name: grafana
-    repo: https://rpm.grafana.com
-    autorefresh: true
-    disable_gpg_check: false
+  ansible.builtin.template:
+    src: grafana.repo.j2
+    dest: /etc/zypp/repos.d/grafana.repo
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: LOKI | Check whether Zypper can read the configured repository
+  ansible.builtin.stat:
+    path: /etc/zypp/repos.d/grafana.repo
+  register: __loki_zypper_source
 
 - name: LOKI | Install Loki from the Grafana Zypper repository
   become: true
@@ -18,3 +24,5 @@
     name: loki
     state: present
     extra_args: --repo grafana
+  environment: "{{ __loki_package_environment }}"
+  when: __loki_zypper_source.stat.exists

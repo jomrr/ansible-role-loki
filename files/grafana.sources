@@ -1,0 +1,6 @@
+Components: main
+X-Repolib-Name: grafana
+Signed-By: /etc/apt/keyrings/grafana.asc
+Suites: stable
+Types: deb
+URIs: https://apt.grafana.com

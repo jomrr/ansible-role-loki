@@ -2,6 +2,11 @@
 # role: loki
 # file: vars/main.yml
 
+# The package calls systemctl directly. Block starts and unit lookup for its scriptlets.
+__loki_package_environment:
+  SYSTEMD_OFFLINE: '1'
+  SYSTEMD_UNIT_PATH: /dev/null
+
 __loki_standalone_config:
   auth_enabled: false
   server:
